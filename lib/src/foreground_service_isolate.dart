@@ -7,6 +7,10 @@ import 'package:flutter/widgets.dart';
 import 'package:isolate_channel/isolate_channel.dart';
 import 'package:uuid/uuid.dart';
 
+String _sendName(String isolateId) => '$isolateId/send';
+String _onExitName(String isolateId) => '$isolateId/onExit';
+String _onErrorName(String isolateId) => '$isolateId/onError';
+
 /// Wrapper for the foreground service isolate methods
 class ForegroundServiceIsolate {
   static const _methodChannel = MethodChannel('foreground_service_isolate');
@@ -15,16 +19,19 @@ class ForegroundServiceIsolate {
   static Future<ForegroundServiceIsolate> spawn(
     IsolateEntryPoint entryPoint,
     SendPort send, {
-    bool paused = false,
-    bool errorsAreFatal = true,
     SendPort? onExit,
     SendPort? onError,
-    String? debugName,
     required String notificationChannelId,
     required int notificationId,
   }) async {
     final isolateId = const Uuid().v4();
-    IsolateNameServer.registerPortWithName(send, isolateId);
+    IsolateNameServer.registerPortWithName(send, _sendName(isolateId));
+    if (onExit != null) {
+      IsolateNameServer.registerPortWithName(onExit, _onExitName(isolateId));
+    }
+    if (onError != null) {
+      IsolateNameServer.registerPortWithName(onError, _onErrorName(isolateId));
+    }
 
     final spawnFuture = _methodChannel.invokeMethod('spawn', {
       'notificationChannelId': notificationChannelId,
@@ -48,8 +55,25 @@ void foregroundServiceIsolateEntryPoint(List<String> args) {
   WidgetsFlutterBinding.ensureInitialized();
 
   final isolateId = args[0];
-  final send = IsolateNameServer.lookupPortByName(isolateId);
+
+  final sendName = _sendName(isolateId);
+  final send = IsolateNameServer.lookupPortByName(sendName);
   if (send == null) throw StateError('SendPort not registered');
+  IsolateNameServer.removePortNameMapping(sendName);
+
+  final onExitName = _onExitName(isolateId);
+  final onExit = IsolateNameServer.lookupPortByName(onExitName);
+  if (onExit != null) {
+    Isolate.current.addOnExitListener(onExit);
+    IsolateNameServer.removePortNameMapping(onExitName);
+  }
+
+  final onErrorName = _onErrorName(isolateId);
+  final onError = IsolateNameServer.lookupPortByName(onErrorName);
+  if (onError != null) {
+    Isolate.current.addErrorListener(onError);
+    IsolateNameServer.removePortNameMapping(onErrorName);
+  }
 
   final userEntryPointHandle = int.parse(args[1]);
   final userEntryPoint = PluginUtilities.getCallbackFromHandle(
