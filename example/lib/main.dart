@@ -87,7 +87,6 @@ class ExampleAppState extends State<ExampleApp> {
         id: 1,
         contentTitle: 'Foreground Service Isolate',
         contentText: 'Running...',
-        smallIcon: 'ic_launcher',
       ),
     );
     stream();

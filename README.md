@@ -45,8 +45,6 @@ void example() async {
       id: 1,
       contentTitle: 'Foreground Service Isolate',
       contentText: 'Running...',
-      // This resource must be present in android/app/src/main/res/drawable
-      smallIcon: 'ic_launcher',
     ),
   );
 
