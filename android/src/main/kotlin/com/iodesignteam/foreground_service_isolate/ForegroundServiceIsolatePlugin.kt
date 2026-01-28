@@ -86,7 +86,7 @@ class IsolateForegroundService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 notificationDetails.channelId,
-                "Foreground Service",
+                notificationDetails.channelName,
                 NotificationManager.IMPORTANCE_LOW
             )
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
@@ -135,6 +135,7 @@ class IsolateForegroundService : Service() {
 
 class NotificationDetails(
     val channelId: String,
+    val channelName: String,
     val id: Int,
     val contentTitle: String,
     val contentText: String,
