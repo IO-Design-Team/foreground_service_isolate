@@ -27,6 +27,9 @@ class ForegroundServiceIsolate {
     SendPort? onExit,
     SendPort? onError,
     required NotificationDetails notificationDetails,
+
+    // This must be a subset of the types specified in the manifest
+    Set<ForegroundServiceType> foregroundServiceTypes = const {},
   }) async {
     final isolateId = const Uuid().v4();
     IsolateNameServer.registerPortWithName(send, _sendName(isolateId));
@@ -39,6 +42,8 @@ class ForegroundServiceIsolate {
 
     await _methodChannel.invokeMethod('spawn', {
       'notificationDetails': jsonEncode(notificationDetails),
+      'foregroundServiceType':
+          foregroundServiceTypes.fold(0, (v, e) => v | e.value),
       'entryPoint':
           PluginUtilities.getCallbackHandle(foregroundServiceIsolateEntryPoint)
               ?.toRawHandle(),
@@ -51,7 +56,8 @@ class ForegroundServiceIsolate {
   }
 
   /// Stop the foreground service
-  static Future<void> stopService() => _methodChannel.invokeMethod('stopService');
+  static Future<void> stopService() =>
+      _methodChannel.invokeMethod('stopService');
 
   /// Kill the isolate
   void kill() => stopService();

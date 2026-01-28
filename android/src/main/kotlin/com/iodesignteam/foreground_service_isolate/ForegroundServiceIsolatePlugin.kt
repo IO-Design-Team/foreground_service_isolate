@@ -51,6 +51,7 @@ class ForegroundServiceIsolatePlugin : FlutterPlugin, MethodCallHandler {
     private fun spawn(call: MethodCall, result: Result) {
         val intent = Intent(context, IsolateForegroundService::class.java)
         intent.putExtra("notificationDetails", call.argument<String>("notificationDetails"))
+        intent.putExtra("foregroundServiceType", call.argument<Int>("foregroundServiceType"))
         intent.putExtra("entryPoint", call.argument<Long>("entryPoint"))
         intent.putExtra("userEntryPoint", call.argument<Long>("userEntryPoint"))
         intent.putExtra("isolateId", call.argument<String>("isolateId"))
@@ -79,6 +80,7 @@ class IsolateForegroundService : Service() {
         val notificationDetails =
             Gson().fromJson(notificationDetailsJson, NotificationDetails::class.java)
 
+        val foregroundServiceType = intent.getIntExtra("foregroundServiceType", 0)
         val entryPoint = intent.getLongExtra("entryPoint", -1)
         val userEntryPoint = intent.getLongExtra("userEntryPoint", -1)
         val isolateId = intent.getStringExtra("isolateId")!!
@@ -96,7 +98,11 @@ class IsolateForegroundService : Service() {
             .setContentTitle(notificationDetails.contentTitle)
             .setContentText(notificationDetails.contentText).build()
 
-        startForeground(notificationDetails.id, notification)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(notificationDetails.id, notification, foregroundServiceType)
+        } else {
+            startForeground(notificationDetails.id, notification)
+        }
 
         FlutterInjector.instance().flutterLoader().ensureInitializationComplete(this, null)
         val flutterCallbackInformation =
