@@ -51,7 +51,7 @@ class ForegroundServiceIsolate {
   }
 
   /// Stop the foreground service
-  static void stopService() => _methodChannel.invokeMethod('stopService');
+  static Future<void> stopService() => _methodChannel.invokeMethod('stopService');
 
   /// Kill the isolate
   void kill() => stopService();
