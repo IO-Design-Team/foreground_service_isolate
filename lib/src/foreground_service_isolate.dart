@@ -47,6 +47,11 @@ class ForegroundServiceIsolate {
 
     return ForegroundServiceIsolate();
   }
+
+  /// Stop the foreground service
+  void kill() {
+    _methodChannel.invokeMethod('kill');
+  }
 }
 
 /// Entry point for the foreground service isolate
@@ -58,7 +63,12 @@ void foregroundServiceIsolateEntryPoint(List<String> args) {
 
   final sendName = _sendName(isolateId);
   final send = IsolateNameServer.lookupPortByName(sendName);
-  if (send == null) throw StateError('SendPort not registered');
+  if (send == null) {
+    // Clean up zombie isolates after hot restart
+    Isolate.current.kill();
+    return;
+  }
+
   IsolateNameServer.removePortNameMapping(sendName);
 
   final onExitName = _onExitName(isolateId);

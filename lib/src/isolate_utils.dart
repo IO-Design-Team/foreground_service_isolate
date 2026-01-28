@@ -1,6 +1,5 @@
 import 'dart:isolate';
 
-import 'package:isolate_channel/isolate_channel.dart';
 import 'package:foreground_service_isolate/foreground_service_isolate.dart';
 
 /// Spawn an isolate in a foreground service
