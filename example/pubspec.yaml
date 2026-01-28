@@ -20,6 +20,7 @@ dev_dependencies:
     sdk: flutter
 
   rexios_lints: ^17.0.3
+  flutter_local_notifications: ^20.0.0
 
 flutter:
   uses-material-design: true
