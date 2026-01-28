@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:foreground_service_isolate/foreground_service_isolate.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -13,11 +14,59 @@ void main() async {
 
   await Permission.notification.request();
 
-  final send = IsolateNameServer.lookupPortByName(isolateName);
-  final IsolateConnection connection;
-  if (send != null) {
-    connection = await connectToIsolate(send);
-  } else {
+  runApp(const ExampleApp());
+}
+
+@pragma('vm:entry-point')
+void isolateEntryPoint(SendPort send) {
+  final connection = setupIsolate(send);
+
+  final stream = Stream<String>.periodic(
+    const Duration(seconds: 1),
+    (i) => 'Hello from the isolate: $i',
+  );
+
+  final eventChannel = IsolateEventChannel(eventChannelId, connection);
+  eventChannel.setStreamHandler(
+    IsolateStreamHandler.inline(
+      onListen: (_, sink) => stream.listen(sink.success),
+    ),
+  );
+}
+
+class ExampleApp extends StatefulWidget {
+  const ExampleApp({super.key});
+
+  @override
+  State<StatefulWidget> createState() => ExampleAppState();
+}
+
+class ExampleAppState extends State<ExampleApp> {
+  IsolateConnection? connection;
+  final messages = <String>[];
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Foreground Service Isolate')),
+        body: Column(
+          children: [
+            ElevatedButton(onPressed: spawn, child: const Text('Spawn')),
+            ElevatedButton(onPressed: connect, child: const Text('Connect')),
+            ElevatedButton(onPressed: kill, child: const Text('Kill')),
+            Expanded(
+              child: ListView(
+                children: [for (final message in messages) Text(message)],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void spawn() async {
     connection = await spawnForegroundServiceIsolate(
       isolateEntryPoint,
       onConnect: (send) =>
@@ -30,25 +79,34 @@ void main() async {
         smallIcon: 'ic_launcher',
       ),
     );
+    stream();
   }
 
-  final eventChannel = IsolateEventChannel(eventChannelId, connection);
-  eventChannel.receiveBroadcastStream().listen(print);
-}
+  void connect() async {
+    if (connection != null) return;
 
-@pragma('vm:entry-point')
-void isolateEntryPoint(SendPort send) {
-  final connection = setupIsolate(send);
+    final send = IsolateNameServer.lookupPortByName(isolateName);
+    if (send == null) return;
 
-  final eventChannel = IsolateEventChannel(eventChannelId, connection);
-  eventChannel.setStreamHandler(
-    IsolateStreamHandler.inline(
-      onListen: (_, sink) async {
-        while (true) {
-          sink.success('Hello from the isolate');
-          await Future.delayed(const Duration(seconds: 1));
-        }
-      },
-    ),
-  );
+    connection = await connectToIsolate(send);
+    stream();
+  }
+
+  void kill() {
+    final connection = this.connection;
+    if (connection == null) return;
+
+    connection.close();
+    this.connection = null;
+  }
+
+  void stream() {
+    final connection = this.connection;
+    if (connection == null) return;
+
+    final eventChannel = IsolateEventChannel(eventChannelId, connection);
+    eventChannel.receiveBroadcastStream().listen(
+      (e) => setState(() => messages.insert(0, e)),
+    );
+  }
 }
