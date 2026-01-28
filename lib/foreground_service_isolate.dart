@@ -1,8 +1,2 @@
-
-import 'foreground_service_isolate_platform_interface.dart';
-
-class ForegroundServiceIsolate {
-  Future<String?> getPlatformVersion() {
-    return ForegroundServiceIsolatePlatform.instance.getPlatformVersion();
-  }
-}
+export 'src/foreground_service_isolate.dart';
+export 'src/isolate_utils.dart';
