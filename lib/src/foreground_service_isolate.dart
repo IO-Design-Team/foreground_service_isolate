@@ -16,6 +16,8 @@ class ForegroundServiceIsolate {
   static const _methodChannel = MethodChannel('foreground_service_isolate');
 
   /// Spawn an isolate in a foreground service
+  /// 
+  /// The [kill] method must be called before another isolate can be spawned
   static Future<ForegroundServiceIsolate> spawn(
     IsolateEntryPoint entryPoint,
     SendPort send, {

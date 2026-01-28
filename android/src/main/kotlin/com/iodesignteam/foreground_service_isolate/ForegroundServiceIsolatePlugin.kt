@@ -38,6 +38,7 @@ class ForegroundServiceIsolatePlugin : FlutterPlugin, MethodCallHandler {
     ) {
         when (call.method) {
             "spawn" -> spawn(call, result)
+            "kill" -> kill(result)
             else -> result.notImplemented()
         }
     }
@@ -56,6 +57,12 @@ class ForegroundServiceIsolatePlugin : FlutterPlugin, MethodCallHandler {
         startForegroundService(context, intent)
         result.success(null)
     }
+
+    private fun kill(result: Result) {
+        val intent = Intent(context, IsolateForegroundService::class.java)
+        context.stopService(intent)
+        result.success(null)
+    }
 }
 
 class IsolateForegroundService : Service() {
@@ -65,8 +72,10 @@ class IsolateForegroundService : Service() {
 
     var flutterEngine: FlutterEngine? = null
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val notificationChannelId = intent!!.getStringExtra("notificationChannelId")!!
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        if (flutterEngine != null) return START_NOT_STICKY
+
+        val notificationChannelId = intent.getStringExtra("notificationChannelId")!!
         val notificationId = intent.getIntExtra("notificationId", -1)
         val entryPoint = intent.getLongExtra("entryPoint", -1)
         val userEntryPoint = intent.getLongExtra("userEntryPoint", -1)
@@ -100,7 +109,15 @@ class IsolateForegroundService : Service() {
         engineOptions.dartEntrypointArgs = listOf(isolateId, userEntryPoint.toString())
 
         flutterEngine = flutterEngineGroup!!.createAndRunEngine(engineOptions)
+
         return START_NOT_STICKY
+    }
+
+    override fun onDestroy() {
+        flutterEngine?.destroy()
+        flutterEngine = null
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

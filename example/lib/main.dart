@@ -19,6 +19,10 @@ void main() async {
 
   final eventChannel = IsolateEventChannel(eventChannelId, connection);
   eventChannel.receiveBroadcastStream().listen(print);
+
+  await Future.delayed(const Duration(seconds: 5));
+
+  connection.close();
 }
 
 @pragma('vm:entry-point')
