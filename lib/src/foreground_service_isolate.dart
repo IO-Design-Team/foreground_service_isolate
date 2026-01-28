@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:foreground_service_isolate/foreground_service_isolate.dart';
 import 'package:isolate_channel/isolate_channel.dart';
 import 'package:uuid/uuid.dart';
 
@@ -23,8 +25,7 @@ class ForegroundServiceIsolate {
     SendPort send, {
     SendPort? onExit,
     SendPort? onError,
-    required String notificationChannelId,
-    required int notificationId,
+    required NotificationDetails notificationDetails,
   }) async {
     final isolateId = const Uuid().v4();
     IsolateNameServer.registerPortWithName(send, _sendName(isolateId));
@@ -36,8 +37,7 @@ class ForegroundServiceIsolate {
     }
 
     final spawnFuture = _methodChannel.invokeMethod('spawn', {
-      'notificationChannelId': notificationChannelId,
-      'notificationId': notificationId,
+      'notificationDetails': jsonEncode(notificationDetails),
       'entryPoint':
           PluginUtilities.getCallbackHandle(foregroundServiceIsolateEntryPoint)
               ?.toRawHandle(),

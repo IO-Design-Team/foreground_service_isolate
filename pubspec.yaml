@@ -10,7 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  isolate_channel: ^0.4.2
+  isolate_channel:
+    path: ../isolate_channel
   uuid: ^4.5.2
 
 dev_dependencies:

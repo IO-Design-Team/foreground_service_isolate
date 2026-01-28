@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat.startForegroundService
+import com.google.gson.Gson
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineGroup
@@ -49,8 +50,7 @@ class ForegroundServiceIsolatePlugin : FlutterPlugin, MethodCallHandler {
 
     private fun spawn(call: MethodCall, result: Result) {
         val intent = Intent(context, IsolateForegroundService::class.java)
-        intent.putExtra("notificationChannelId", call.argument<String>("notificationChannelId"))
-        intent.putExtra("notificationId", call.argument<Int>("notificationId"))
+        intent.putExtra("notificationDetails", call.argument<String>("notificationDetails"))
         intent.putExtra("entryPoint", call.argument<Long>("entryPoint"))
         intent.putExtra("userEntryPoint", call.argument<Long>("userEntryPoint"))
         intent.putExtra("isolateId", call.argument<String>("isolateId"))
@@ -75,24 +75,34 @@ class IsolateForegroundService : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if (flutterEngine != null) return START_NOT_STICKY
 
-        val notificationChannelId = intent.getStringExtra("notificationChannelId")!!
-        val notificationId = intent.getIntExtra("notificationId", -1)
+        val notificationDetailsJson = intent.getStringExtra("notificationDetails")!!
+        val notificationDetails =
+            Gson().fromJson(notificationDetailsJson, NotificationDetails::class.java)
+
         val entryPoint = intent.getLongExtra("entryPoint", -1)
         val userEntryPoint = intent.getLongExtra("userEntryPoint", -1)
         val isolateId = intent.getStringExtra("isolateId")!!
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                notificationChannelId, "Foreground Service", NotificationManager.IMPORTANCE_LOW
+                notificationDetails.channelId,
+                "Foreground Service",
+                NotificationManager.IMPORTANCE_LOW
             )
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
 
-        val notification = NotificationCompat.Builder(this, notificationChannelId)
-            .setContentTitle("Foreground Service").setContentText("Running...")
-            .setSmallIcon(android.R.drawable.ic_dialog_info).build()
+        val notification = NotificationCompat.Builder(this, notificationDetails.channelId)
+            .setContentTitle(notificationDetails.contentTitle)
+            .setContentText(notificationDetails.contentText).setSmallIcon(
+                resources.getIdentifier(
+                    notificationDetails.smallIcon,
+                    "drawable",
+                    applicationContext.packageName,
+                ),
+            ).build()
 
-        startForeground(notificationId, notification)
+        startForeground(notificationDetails.id, notification)
 
         FlutterInjector.instance().flutterLoader().ensureInitializationComplete(this, null)
         val flutterCallbackInformation =
@@ -122,3 +132,11 @@ class IsolateForegroundService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 }
+
+class NotificationDetails(
+    val channelId: String,
+    val id: Int,
+    val contentTitle: String,
+    val contentText: String,
+    val smallIcon: String
+)

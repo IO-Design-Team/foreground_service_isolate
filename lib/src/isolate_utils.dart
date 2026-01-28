@@ -8,11 +8,9 @@ Future<IsolateConnection> spawnForegroundServiceIsolate(
   void Function(SendPort send)? onConnect,
   void Function()? onExit,
   void Function(String error, StackTrace stackTrace)? onError,
-  required String notificationChannelId,
-  required int notificationId,
+  required NotificationDetails notificationDetails,
 }) {
-  return spawnIsolate(
-    entryPoint,
+  return spawnIsolateConnection(
     onConnect: onConnect,
     onExit: onExit,
     onError: onError,
@@ -21,8 +19,7 @@ Future<IsolateConnection> spawnForegroundServiceIsolate(
       send,
       onExit: control,
       onError: control,
-      notificationChannelId: notificationChannelId,
-      notificationId: notificationId,
+      notificationDetails: notificationDetails,
     ),
   );
 }

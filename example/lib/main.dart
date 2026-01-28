@@ -22,8 +22,13 @@ void main() async {
       isolateEntryPoint,
       onConnect: (send) =>
           IsolateNameServer.registerPortWithName(send, isolateName),
-      notificationChannelId: 'foreground_service_isolate',
-      notificationId: 1,
+      notificationDetails: const NotificationDetails(
+        channelId: 'foreground_service_isolate',
+        id: 1,
+        contentTitle: 'Foreground Service Isolate',
+        contentText: 'Running...',
+        smallIcon: 'ic_launcher',
+      ),
     );
   }
 
