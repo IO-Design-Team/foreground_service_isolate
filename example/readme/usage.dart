@@ -1,7 +1,10 @@
 import 'dart:isolate';
 
+import 'package:flutter/foundation.dart';
 import 'package:foreground_service_isolate/foreground_service_isolate.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+const methodChannelId = 'foreground_service_isolate_method';
 
 void example() async {
   // Notification permission is required to show a foreground service notification
@@ -19,9 +22,21 @@ void example() async {
       smallIcon: 'ic_launcher',
     ),
   );
+
+  final methodChannel = IsolateMethodChannel(methodChannelId, connection);
+  final result = await methodChannel.invokeMethod('ping');
+  debugPrint(result);
 }
 
 @pragma('vm:entry-point')
 void isolateEntryPoint(SendPort send) {
   final connection = setupIsolate(send);
+
+  final methodChannel = IsolateMethodChannel(methodChannelId, connection);
+  methodChannel.setMethodCallHandler(
+    (call) => switch (call.method) {
+      'ping' => 'pong',
+      _ => call.notImplemented(),
+    },
+  );
 }
