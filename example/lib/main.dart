@@ -24,7 +24,17 @@ void isolateEntryPoint(SendPort send) {
   final stream = Stream<String>.periodic(
     const Duration(seconds: 1),
     (i) => 'Hello from the isolate: $i',
-  );
+  ).asBroadcastStream();
+
+  () async {
+    while (true) {
+      await Future.delayed(const Duration(seconds: 1));
+
+      // This is an example
+      // ignore: avoid_print
+      print('Isolate is running...');
+    }
+  }();
 
   final eventChannel = IsolateEventChannel(eventChannelId, connection);
   eventChannel.setStreamHandler(
@@ -98,6 +108,8 @@ class ExampleAppState extends State<ExampleApp> {
 
     connection.close();
     this.connection = null;
+
+    ForegroundServiceIsolate.stopService();
   }
 
   void stream() {

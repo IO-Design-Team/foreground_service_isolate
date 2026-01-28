@@ -6,7 +6,6 @@ import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:foreground_service_isolate/foreground_service_isolate.dart';
-import 'package:isolate_channel/isolate_channel.dart';
 import 'package:uuid/uuid.dart';
 
 String _sendName(String isolateId) => '$isolateId/send';
@@ -17,8 +16,10 @@ String _onErrorName(String isolateId) => '$isolateId/onError';
 class ForegroundServiceIsolate {
   static const _methodChannel = MethodChannel('foreground_service_isolate');
 
+  const ForegroundServiceIsolate._();
+
   /// Spawn an isolate in a foreground service
-  /// 
+  ///
   /// The [kill] method must be called before another isolate can be spawned
   static Future<ForegroundServiceIsolate> spawn(
     IsolateEntryPoint entryPoint,
@@ -47,13 +48,14 @@ class ForegroundServiceIsolate {
     });
     unawaited(spawnFuture);
 
-    return ForegroundServiceIsolate();
+    return const ForegroundServiceIsolate._();
   }
 
   /// Stop the foreground service
-  void kill() {
-    _methodChannel.invokeMethod('kill');
-  }
+  static void stopService() => _methodChannel.invokeMethod('stopService');
+
+  /// Kill the isolate
+  void kill() => stopService();
 }
 
 /// Entry point for the foreground service isolate

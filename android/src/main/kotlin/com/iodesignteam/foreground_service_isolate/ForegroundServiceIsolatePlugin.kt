@@ -39,7 +39,7 @@ class ForegroundServiceIsolatePlugin : FlutterPlugin, MethodCallHandler {
     ) {
         when (call.method) {
             "spawn" -> spawn(call, result)
-            "kill" -> kill(result)
+            "stopService" -> stopService(result)
             else -> result.notImplemented()
         }
     }
@@ -58,7 +58,7 @@ class ForegroundServiceIsolatePlugin : FlutterPlugin, MethodCallHandler {
         result.success(null)
     }
 
-    private fun kill(result: Result) {
+    private fun stopService(result: Result) {
         val intent = Intent(context, IsolateForegroundService::class.java)
         context.stopService(intent)
         result.success(null)
