@@ -37,7 +37,7 @@ class ForegroundServiceIsolate {
       IsolateNameServer.registerPortWithName(onError, _onErrorName(isolateId));
     }
 
-    final spawnFuture = _methodChannel.invokeMethod('spawn', {
+    await _methodChannel.invokeMethod('spawn', {
       'notificationDetails': jsonEncode(notificationDetails),
       'entryPoint':
           PluginUtilities.getCallbackHandle(foregroundServiceIsolateEntryPoint)
@@ -46,7 +46,6 @@ class ForegroundServiceIsolate {
           PluginUtilities.getCallbackHandle(entryPoint)?.toRawHandle(),
       'isolateId': isolateId,
     });
-    unawaited(spawnFuture);
 
     return const ForegroundServiceIsolate._();
   }
