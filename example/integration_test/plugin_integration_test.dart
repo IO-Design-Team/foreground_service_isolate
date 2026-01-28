@@ -54,5 +54,5 @@ void main() async {
 
 @pragma('vm:entry-point')
 void entryPoint(SendPort send) {
-  final connection = setupIsolate(send);
+  setupIsolate(send);
 }
