@@ -94,9 +94,19 @@ class IsolateForegroundService : Service() {
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
 
+        val smallIcon = resources.getIdentifier(
+            notificationDetails.smallIcon,
+            "drawable",
+            applicationContext.packageName,
+        )
+
+        if (smallIcon == 0) {
+            throw IllegalArgumentException("Small icon not found: ${notificationDetails.smallIcon}")
+        }
+
         val notification = NotificationCompat.Builder(this, notificationDetails.channelId)
             .setContentTitle(notificationDetails.contentTitle)
-            .setContentText(notificationDetails.contentText).build()
+            .setContentText(notificationDetails.contentText).setSmallIcon(smallIcon).build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(notificationDetails.id, notification, foregroundServiceType)
@@ -138,5 +148,6 @@ class NotificationDetails(
     val channelName: String,
     val id: Int,
     val contentTitle: String,
-    val contentText: String
+    val contentText: String,
+    val smallIcon: String
 )

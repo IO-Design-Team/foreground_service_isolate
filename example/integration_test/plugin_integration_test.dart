@@ -35,6 +35,7 @@ void main() async {
         id: 1,
         contentTitle: 'Foreground Service Isolate',
         contentText: 'Running...',
+        smallIcon: 'ic_launcher',
       ),
     );
 

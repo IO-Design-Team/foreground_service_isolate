@@ -18,6 +18,9 @@ class NotificationDetails {
   /// Notification content text
   final String contentText;
 
+  /// Notification small icon
+  final String smallIcon;
+
   /// Constructor
   const NotificationDetails({
     required this.channelId,
@@ -25,6 +28,7 @@ class NotificationDetails {
     required this.id,
     required this.contentTitle,
     required this.contentText,
+    required this.smallIcon,
   });
 
   /// Convert to JSON
@@ -34,5 +38,6 @@ class NotificationDetails {
         'id': id,
         'contentTitle': contentTitle,
         'contentText': contentText,
+        'smallIcon': smallIcon,
       };
 }
