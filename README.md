@@ -56,7 +56,7 @@ void example() async {
 }
 
 @pragma('vm:entry-point')
-void isolateEntryPoint(SendPort send) {
+void isolateEntryPoint(SendPort? send) {
   final connection = setupIsolate(send);
 
   final methodChannel = IsolateMethodChannel(methodChannelId, connection);

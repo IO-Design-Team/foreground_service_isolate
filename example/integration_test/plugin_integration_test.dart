@@ -88,7 +88,7 @@ void main() async {
 }
 
 @pragma('vm:entry-point')
-void entryPoint(SendPort send) {
+void entryPoint(SendPort? send) {
   final connection = setupIsolate(send);
   final methodChannel = IsolateMethodChannel(methodChannelId, connection);
 
@@ -101,7 +101,7 @@ void entryPoint(SendPort send) {
 }
 
 @pragma('vm:entry-point')
-void errorEntryPoint(SendPort send) {
+void errorEntryPoint(SendPort? send) {
   setupIsolate(send);
   throw Exception();
 }

@@ -130,7 +130,7 @@ class IsolateForegroundService : Service() {
 
         flutterEngine = flutterEngineGroup!!.createAndRunEngine(engineOptions)
 
-        return START_NOT_STICKY
+        return START_REDELIVER_INTENT
     }
 
     override fun onDestroy() {

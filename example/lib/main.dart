@@ -18,8 +18,12 @@ void main() async {
 }
 
 @pragma('vm:entry-point')
-void isolateEntryPoint(SendPort send) {
-  final connection = setupIsolate(send);
+void isolateEntryPoint(SendPort? send) {
+  final connection = setupIsolate(
+    send,
+    onSendPortReady: (send) =>
+        IsolateNameServer.registerPortWithName(send, isolateName),
+  );
 
   final stream = Stream<String>.periodic(
     const Duration(seconds: 1),
@@ -79,8 +83,6 @@ class ExampleAppState extends State<ExampleApp> {
   void spawn() async {
     connection = await spawnForegroundServiceIsolate(
       isolateEntryPoint,
-      onConnect: (send) =>
-          IsolateNameServer.registerPortWithName(send, isolateName),
       notificationDetails: const NotificationDetails(
         channelId: 'foreground_service_isolate',
         channelName: 'Foreground Service Isolate',
