@@ -21,8 +21,10 @@ void main() async {
 void isolateEntryPoint(SendPort? send) {
   final connection = setupIsolate(
     send,
-    onSendPortReady: (send) =>
-        IsolateNameServer.registerPortWithName(send, isolateName),
+    onSendPortReady: (send) {
+      IsolateNameServer.removePortNameMapping(isolateName);
+      IsolateNameServer.registerPortWithName(send, isolateName);
+    },
   );
 
   final stream = Stream<String>.periodic(
