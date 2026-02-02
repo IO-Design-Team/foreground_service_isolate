@@ -69,8 +69,6 @@ class ForegroundServiceIsolate {
 /// Entry point for the foreground service isolate
 @pragma('vm:entry-point')
 void foregroundServiceIsolateEntryPoint(List<String> args) {
-  WidgetsFlutterBinding.ensureInitialized();
-
   final isolateId = args[0];
 
   final sendName = _sendName(isolateId);
@@ -97,6 +95,8 @@ void foregroundServiceIsolateEntryPoint(List<String> args) {
   );
 
   if (userEntryPoint == null) throw StateError('User entry point not found');
+
+  WidgetsFlutterBinding.ensureInitialized();
 
   userEntryPoint(send);
 }
