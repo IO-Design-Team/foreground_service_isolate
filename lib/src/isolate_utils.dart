@@ -11,9 +11,11 @@ Future<IsolateConnection> spawnForegroundServiceIsolate(
   final connection = await spawnIsolateConnection(
     onExit: onExit,
     onError: onError,
-    spawn: (send) => ForegroundServiceIsolate.spawn(
+    spawn: (send, control) => ForegroundServiceIsolate.spawn(
       entryPoint,
       send,
+      onExit: control,
+      onError: control,
       notificationDetails: notificationDetails,
       foregroundServiceTypes: foregroundServiceTypes,
     ),
