@@ -7,8 +7,8 @@ Future<IsolateConnection> spawnForegroundServiceIsolate(
   void Function(String error, StackTrace stackTrace)? onError,
   required NotificationDetails notificationDetails,
   Set<ForegroundServiceType> foregroundServiceTypes = const {},
-}) async {
-  final connection = await spawnIsolateConnection(
+}) {
+  return spawnIsolateConnection(
     onExit: onExit,
     onError: onError,
     spawn: (send, control) => ForegroundServiceIsolate.spawn(
@@ -20,6 +20,4 @@ Future<IsolateConnection> spawnForegroundServiceIsolate(
       foregroundServiceTypes: foregroundServiceTypes,
     ),
   );
-
-  return connection;
 }
