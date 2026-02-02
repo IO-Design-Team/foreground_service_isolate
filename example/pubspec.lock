@@ -257,9 +257,10 @@ packages:
   isolate_channel:
     dependency: transitive
     description:
-      path: "../../isolate_channel"
-      relative: true
-    source: path
+      name: isolate_channel
+      sha256: "99f991fbfd915017bc99df5fa06fdb70648d977fd2712bcca1527c7609f050a4"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.5.0"
   leak_tracker:
     dependency: transitive

@@ -28,7 +28,9 @@ class ForegroundServiceIsolate {
     SendPort? onError,
     required NotificationDetails notificationDetails,
 
-    // This must be a subset of the types specified in the manifest
+    /// This must be a subset of the types specified in the manifest
+    ///
+    /// Passing an empty set will use all the types specified in the manifest
     Set<ForegroundServiceType> foregroundServiceTypes = const {},
   }) async {
     final isolateId = const Uuid().v4();
@@ -42,8 +44,9 @@ class ForegroundServiceIsolate {
 
     await _methodChannel.invokeMethod('spawn', {
       'notificationDetails': jsonEncode(notificationDetails),
-      'foregroundServiceType':
-          foregroundServiceTypes.fold(0, (v, e) => v | e.value),
+      'foregroundServiceType': foregroundServiceTypes.isEmpty
+          ? ForegroundServiceType.manifest.value
+          : foregroundServiceTypes.fold(0, (v, e) => v | e.value),
       'entryPoint':
           PluginUtilities.getCallbackHandle(foregroundServiceIsolateEntryPoint)
               ?.toRawHandle(),
