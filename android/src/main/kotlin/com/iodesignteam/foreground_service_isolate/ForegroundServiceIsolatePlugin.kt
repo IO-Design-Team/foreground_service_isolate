@@ -80,7 +80,7 @@ class IsolateForegroundService : Service() {
         val notificationDetails =
             Gson().fromJson(notificationDetailsJson, NotificationDetails::class.java)
 
-        val foregroundServiceType = intent.getIntExtra("foregroundServiceType", 0)
+        val foregroundServiceType = intent.getIntExtra("foregroundServiceType", -1)
         val entryPoint = intent.getLongExtra("entryPoint", -1)
         val userEntryPoint = intent.getLongExtra("userEntryPoint", -1)
         val isolateId = intent.getStringExtra("isolateId")!!
