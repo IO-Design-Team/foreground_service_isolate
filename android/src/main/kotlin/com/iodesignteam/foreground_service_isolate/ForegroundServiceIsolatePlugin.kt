@@ -74,7 +74,7 @@ class IsolateForegroundService : Service() {
     var flutterEngine: FlutterEngine? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if (flutterEngine != null) return START_NOT_STICKY
+        if (flutterEngine != null) return START_REDELIVER_INTENT
 
         val notificationDetailsJson = intent.getStringExtra("notificationDetails")!!
         val notificationDetails =
