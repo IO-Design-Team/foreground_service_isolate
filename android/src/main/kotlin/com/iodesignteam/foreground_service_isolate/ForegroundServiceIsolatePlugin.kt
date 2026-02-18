@@ -91,7 +91,14 @@ class IsolateForegroundService : Service() {
                 notificationDetails.channelName,
                 NotificationManager.IMPORTANCE_LOW
             )
-            getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            try {
+                notificationManager.createNotificationChannel(channel)
+            } catch (_: Exception) {
+                // Some devices have corrupted channel data; delete and retry
+                notificationManager.deleteNotificationChannel(notificationDetails.channelId)
+                notificationManager.createNotificationChannel(channel)
+            }
         }
 
         val smallIcon = resources.getIdentifier(
