@@ -49,8 +49,22 @@ class ForegroundServiceIsolatePlugin : FlutterPlugin, MethodCallHandler {
     }
 
     private fun spawn(call: MethodCall, result: Result) {
+        val notificationDetailsJson = call.argument<String>("notificationDetails")
+        val notificationDetails =
+            Gson().fromJson(notificationDetailsJson, NotificationDetails::class.java)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                notificationDetails.channelId,
+                notificationDetails.channelName,
+                NotificationManager.IMPORTANCE_LOW
+            )
+            context.getSystemService(NotificationManager::class.java)
+                .createNotificationChannel(channel)
+        }
+
         val intent = Intent(context, IsolateForegroundService::class.java)
-        intent.putExtra("notificationDetails", call.argument<String>("notificationDetails"))
+        intent.putExtra("notificationDetails", notificationDetailsJson)
         intent.putExtra("foregroundServiceType", call.argument<Int>("foregroundServiceType"))
         intent.putExtra("entryPoint", call.argument<Long>("entryPoint"))
         intent.putExtra("userEntryPoint", call.argument<Long>("userEntryPoint"))
@@ -84,15 +98,6 @@ class IsolateForegroundService : Service() {
         val entryPoint = intent.getLongExtra("entryPoint", -1)
         val userEntryPoint = intent.getLongExtra("userEntryPoint", -1)
         val isolateId = intent.getStringExtra("isolateId")!!
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                notificationDetails.channelId,
-                notificationDetails.channelName,
-                NotificationManager.IMPORTANCE_LOW
-            )
-            getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
-        }
 
         val smallIcon = resources.getIdentifier(
             notificationDetails.smallIcon,
