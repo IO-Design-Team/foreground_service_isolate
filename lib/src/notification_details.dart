@@ -9,6 +9,9 @@ class NotificationDetails {
   /// Notification channel name
   final String channelName;
 
+  /// Notification channel description
+  final String channelDescription;
+
   /// Notification ID
   final int id;
 
@@ -25,6 +28,7 @@ class NotificationDetails {
   const NotificationDetails({
     required this.channelId,
     required this.channelName,
+    required this.channelDescription,
     required this.id,
     required this.contentTitle,
     required this.contentText,
@@ -35,6 +39,7 @@ class NotificationDetails {
   Map<String, dynamic> toJson() => {
         'channelId': channelId,
         'channelName': channelName,
+        'channelDescription': channelDescription,
         'id': id,
         'contentTitle': contentTitle,
         'contentText': contentText,

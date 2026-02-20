@@ -42,6 +42,7 @@ void example() async {
     notificationDetails: const NotificationDetails(
       channelId: 'foreground_service_isolate',
       channelName: 'Foreground Service Isolate',
+      channelDescription: 'Foreground Service Isolate',
       id: 1,
       contentTitle: 'Foreground Service Isolate',
       contentText: 'Running...',

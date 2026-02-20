@@ -12,6 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 const notificationDetails = NotificationDetails(
   channelId: 'foreground_service_isolate',
   channelName: 'Foreground Service Isolate',
+  channelDescription: 'Foreground Service Isolate',
   id: 1,
   contentTitle: 'Foreground Service Isolate',
   contentText: 'Running...',

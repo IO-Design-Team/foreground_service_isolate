@@ -91,6 +91,7 @@ class IsolateForegroundService : Service() {
                 notificationDetails.channelName,
                 NotificationManager.IMPORTANCE_LOW
             )
+            channel.description = notificationDetails.channelDescription
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
 
@@ -146,6 +147,7 @@ class IsolateForegroundService : Service() {
 class NotificationDetails(
     val channelId: String,
     val channelName: String,
+    val channelDescription: String,
     val id: Int,
     val contentTitle: String,
     val contentText: String,

@@ -1,6 +1,6 @@
 name: foreground_service_isolate
 description: Spawn a long-running Flutter isolate in a foreground service
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/IO-Design-Team/foreground_service_isolate
 
 environment:
