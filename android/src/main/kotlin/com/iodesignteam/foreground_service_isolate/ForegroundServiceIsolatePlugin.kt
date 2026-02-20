@@ -11,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat.startForegroundService
 import com.google.gson.Gson
 import io.flutter.FlutterInjector
+import io.flutter.Log
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineGroup
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -147,7 +148,7 @@ class IsolateForegroundService : Service() {
 class NotificationDetails(
     val channelId: String,
     val channelName: String,
-    val channelDescription: String,
+    val channelDescription: String?,
     val id: Int,
     val contentTitle: String,
     val contentText: String,

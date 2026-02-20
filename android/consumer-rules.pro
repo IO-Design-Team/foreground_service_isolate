@@ -1,0 +1,1 @@
+-keep class com.iodesignteam.foreground_service_isolate.NotificationDetails { *; }

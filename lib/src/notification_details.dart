@@ -10,7 +10,7 @@ class NotificationDetails {
   final String channelName;
 
   /// Notification channel description
-  final String channelDescription;
+  final String? channelDescription;
 
   /// Notification ID
   final int id;
@@ -28,7 +28,7 @@ class NotificationDetails {
   const NotificationDetails({
     required this.channelId,
     required this.channelName,
-    required this.channelDescription,
+    this.channelDescription,
     required this.id,
     required this.contentTitle,
     required this.contentText,

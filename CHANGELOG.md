@@ -1,6 +1,7 @@
 ## 0.1.1
 
-- Requires `channelDescription` to be passed to `NotificationDetails`. This is technically a breaking change, but the plugin is broken in its current state.
+- Adds optional `channelDescription` to `NotificationDetails`
+- Fixes minification issue in release builds
 
 ## 0.1.0
 
