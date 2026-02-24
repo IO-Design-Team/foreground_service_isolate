@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:foreground_service_isolate/src/notification_importance.dart';
 
 /// Notification details
 @immutable
@@ -24,6 +25,9 @@ class NotificationDetails {
   /// Notification small icon
   final String smallIcon;
 
+  /// Notification importance
+  final NotificationImportance importance;
+
   /// Constructor
   const NotificationDetails({
     required this.channelId,
@@ -33,6 +37,7 @@ class NotificationDetails {
     required this.contentTitle,
     required this.contentText,
     required this.smallIcon,
+    this.importance = NotificationImportance.defaultImportance,
   });
 
   /// Convert to JSON
@@ -44,5 +49,6 @@ class NotificationDetails {
         'contentTitle': contentTitle,
         'contentText': contentText,
         'smallIcon': smallIcon,
+        'importance': importance.value,
       };
 }
