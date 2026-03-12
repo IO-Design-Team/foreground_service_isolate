@@ -40,30 +40,14 @@ android {
 
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
-        test.java.srcDirs += "src/test/kotlin"
     }
 
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
     }
-
-    testOptions {
-        unitTests.includeAndroidResources = true
-        unitTests.all {
-            testLogging {
-                events "passed", "skipped", "failed", "standardOut", "standardError"
-                outputs.upToDateWhen { false }
-                showStandardStreams = true
-            }
-        }
-    }
 }
 
 dependencies {
     implementation("com.google.code.gson:gson:2.13.2")
-
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.robolectric:robolectric:4.16")
-    testImplementation("androidx.test:core:1.6.1")
 }

@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -150,14 +149,14 @@ class IsolateForegroundService : Service() {
     }
 
     private fun createContentPendingIntent(notificationDetails: NotificationDetails): PendingIntent? {
-        return NotificationTapIntentFactory.create(
-            context = this,
-            packageName = packageName,
-            notificationId = notificationDetails.id,
-            tapAction = notificationDetails.tapAction,
-            tapDeepLink = notificationDetails.tapDeepLink,
-            tapIntentAction = notificationDetails.tapIntentAction
-        )
+        if (notificationDetails.launchAppOnTap == false) return null
+
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        } ?: return null
+
+        val pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        return PendingIntent.getActivity(this, notificationDetails.id, launchIntent, pendingIntentFlags)
     }
 
     override fun onDestroy() {
@@ -180,51 +179,5 @@ class NotificationDetails(
     val smallIcon: String,
     val importance: Int,
     val dismissible: Boolean?,
-    val tapAction: String?,
-    val tapDeepLink: String?,
-    val tapIntentAction: String?
+    val launchAppOnTap: Boolean?
 )
-
-internal object NotificationTapIntentFactory {
-    fun create(
-        context: Context,
-        packageName: String,
-        notificationId: Int,
-        tapAction: String?,
-        tapDeepLink: String?,
-        tapIntentAction: String?,
-        launchAppIntent: Intent? = createLaunchAppIntent(context, packageName)
-    ): PendingIntent? {
-        val tapIntent = when (tapAction) {
-            "none" -> null
-            "launchDeepLink" -> createDeepLinkIntent(tapDeepLink)
-            "launchIntentAction" -> createIntentActionIntent(packageName, tapIntentAction)
-            null, "launchApp" -> launchAppIntent
-            else -> launchAppIntent
-        } ?: return null
-
-        val pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        return PendingIntent.getActivity(context, notificationId, tapIntent, pendingIntentFlags)
-    }
-
-    private fun createLaunchAppIntent(context: Context, packageName: String): Intent? {
-        return context.packageManager.getLaunchIntentForPackage(packageName)?.apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        }
-    }
-
-    private fun createDeepLinkIntent(tapDeepLink: String?): Intent? {
-        if (tapDeepLink.isNullOrBlank()) return null
-        return Intent(Intent.ACTION_VIEW, Uri.parse(tapDeepLink)).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        }
-    }
-
-    private fun createIntentActionIntent(packageName: String, tapIntentAction: String?): Intent? {
-        if (tapIntentAction.isNullOrBlank()) return null
-        return Intent(tapIntentAction).apply {
-            setPackage(packageName)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        }
-    }
-}

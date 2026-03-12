@@ -49,9 +49,8 @@ void example() async {
       smallIcon: 'ic_launcher',
       // Optional: make notification swipe-dismissable
       dismissible: false,
-      // Optional: configure notification tap behavior
-      tapAction: NotificationTapAction.launchDeepLink,
-      tapDeepLink: 'foreground-service-isolate://session',
+      // Optional: set to false to disable opening the app on notification tap
+      launchAppOnTap: true,
     ),
   );
 
@@ -77,14 +76,8 @@ void isolateEntryPoint(SendPort? send) {
 
 ### Notification Tap Behavior
 
-`NotificationDetails.tapAction` supports:
-
-- `NotificationTapAction.launchApp` (default): opens the app launcher activity.
-- `NotificationTapAction.none`: disables tap handling.
-- `NotificationTapAction.launchDeepLink`: launches an `ACTION_VIEW` intent using `tapDeepLink`.
-- `NotificationTapAction.launchIntentAction`: launches a custom Android intent action using `tapIntentAction`.
-
-When using `launchDeepLink` or `launchIntentAction`, set `tapDeepLink` or `tapIntentAction` respectively.
+- `launchAppOnTap: true` (default): tapping the notification launches the app.
+- `launchAppOnTap: false`: tapping the notification does nothing.
 
 ### Notification Dismiss Behavior
 
