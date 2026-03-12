@@ -22,9 +22,8 @@ void example() async {
       smallIcon: 'ic_launcher',
       // Optional: make notification swipe-dismissable
       dismissible: false,
-      // Optional: configure notification tap behavior
-      tapAction: NotificationTapAction.launchDeepLink,
-      tapDeepLink: 'foreground-service-isolate://session',
+      // Optional: set to false to disable opening the app on notification tap
+      launchAppOnTap: true,
     ),
   );
 

@@ -61,20 +61,7 @@ class ExampleAppState extends State<ExampleApp> {
   IsolateConnection? connection;
   final messages = <String>[];
   var dismissible = false;
-  var tapAction = NotificationTapAction.launchApp;
-  final tapDeepLinkController = TextEditingController(
-    text: 'foreground-service-isolate://session/1',
-  );
-  final tapIntentActionController = TextEditingController(
-    text: 'com.iodesignteam.foreground_service_isolate_example.OPEN',
-  );
-
-  @override
-  void dispose() {
-    tapDeepLinkController.dispose();
-    tapIntentActionController.dispose();
-    super.dispose();
-  }
+  var launchAppOnTap = true;
 
   @override
   Widget build(BuildContext context) {
@@ -86,19 +73,14 @@ class ExampleAppState extends State<ExampleApp> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              DropdownButtonFormField<NotificationTapAction>(
-                initialValue: tapAction,
-                decoration: const InputDecoration(
-                  labelText: 'Notification Tap Action',
-                  border: OutlineInputBorder(),
+              SwitchListTile(
+                value: launchAppOnTap,
+                onChanged: (value) => setState(() => launchAppOnTap = value),
+                title: const Text('Launch App On Tap'),
+                subtitle: const Text(
+                  'Turn off to disable opening the app from notification taps.',
                 ),
-                items: NotificationTapAction.values
-                    .map((e) => DropdownMenuItem(value: e, child: Text(e.name)))
-                    .toList(),
-                onChanged: (value) {
-                  if (value == null) return;
-                  setState(() => tapAction = value);
-                },
+                contentPadding: EdgeInsets.zero,
               ),
               SwitchListTile(
                 value: dismissible,
@@ -110,27 +92,6 @@ class ExampleAppState extends State<ExampleApp> {
                 contentPadding: EdgeInsets.zero,
               ),
               const SizedBox(height: 12),
-              if (tapAction == NotificationTapAction.launchDeepLink)
-                TextField(
-                  controller: tapDeepLinkController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tap Deep Link',
-                    hintText: 'myapp://session/123',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              if (tapAction == NotificationTapAction.launchIntentAction)
-                TextField(
-                  controller: tapIntentActionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tap Intent Action',
-                    hintText: 'com.example.OPEN_SESSION',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              if (tapAction != NotificationTapAction.launchApp &&
-                  tapAction != NotificationTapAction.none)
-                const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -157,12 +118,9 @@ class ExampleAppState extends State<ExampleApp> {
   }
 
   void spawn() async {
-    final notificationDetails = buildNotificationDetails();
-    if (notificationDetails == null) return;
-
     connection = await spawnForegroundServiceIsolate(
       isolateEntryPoint,
-      notificationDetails: notificationDetails,
+      notificationDetails: buildNotificationDetails(),
     );
     stream();
   }
@@ -197,26 +155,7 @@ class ExampleAppState extends State<ExampleApp> {
     );
   }
 
-  NotificationDetails? buildNotificationDetails() {
-    String? tapDeepLink;
-    String? tapIntentAction;
-
-    if (tapAction == NotificationTapAction.launchDeepLink) {
-      tapDeepLink = tapDeepLinkController.text.trim();
-      if (tapDeepLink.isEmpty) {
-        showError('Tap Deep Link is required for launchDeepLink');
-        return null;
-      }
-    }
-
-    if (tapAction == NotificationTapAction.launchIntentAction) {
-      tapIntentAction = tapIntentActionController.text.trim();
-      if (tapIntentAction.isEmpty) {
-        showError('Tap Intent Action is required for launchIntentAction');
-        return null;
-      }
-    }
-
+  NotificationDetails buildNotificationDetails() {
     return NotificationDetails(
       channelId: 'foreground_service_isolate',
       channelName: 'Foreground Service Isolate',
@@ -225,14 +164,7 @@ class ExampleAppState extends State<ExampleApp> {
       contentText: 'Running...',
       smallIcon: 'ic_launcher',
       dismissible: dismissible,
-      tapAction: tapAction,
-      tapDeepLink: tapDeepLink,
-      tapIntentAction: tapIntentAction,
+      launchAppOnTap: launchAppOnTap,
     );
-  }
-
-  void showError(String message) {
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    messenger?.showSnackBar(SnackBar(content: Text(message)));
   }
 }
