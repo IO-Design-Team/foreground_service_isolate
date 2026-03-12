@@ -20,6 +20,11 @@ void example() async {
       contentText: 'Running...',
       // This resource must be present in android/app/src/main/res/drawable
       smallIcon: 'ic_launcher',
+      // Optional: make notification swipe-dismissable
+      dismissible: false,
+      // Optional: configure notification tap behavior
+      tapAction: NotificationTapAction.launchDeepLink,
+      tapDeepLink: 'foreground-service-isolate://session',
     ),
   );
 

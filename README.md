@@ -47,6 +47,11 @@ void example() async {
       contentText: 'Running...',
       // This resource must be present in android/app/src/main/res/drawable
       smallIcon: 'ic_launcher',
+      // Optional: make notification swipe-dismissable
+      dismissible: false,
+      // Optional: configure notification tap behavior
+      tapAction: NotificationTapAction.launchDeepLink,
+      tapDeepLink: 'foreground-service-isolate://session',
     ),
   );
 
@@ -69,5 +74,24 @@ void isolateEntryPoint(SendPort? send) {
 }
 
 ```
+
+### Notification Tap Behavior
+
+`NotificationDetails.tapAction` supports:
+
+- `NotificationTapAction.launchApp` (default): opens the app launcher activity.
+- `NotificationTapAction.none`: disables tap handling.
+- `NotificationTapAction.launchDeepLink`: launches an `ACTION_VIEW` intent using `tapDeepLink`.
+- `NotificationTapAction.launchIntentAction`: launches a custom Android intent action using `tapIntentAction`.
+
+When using `launchDeepLink` or `launchIntentAction`, set `tapDeepLink` or `tapIntentAction` respectively.
+
+### Notification Dismiss Behavior
+
+- `dismissible: false` (default) marks the foreground notification as ongoing (`setOngoing(true)`).
+- `dismissible: true` allows the notification to be swiped away.
+
+Note: On Android 14+ (API 34+), users may still be able to dismiss some foreground service
+notifications even when `dismissible: false` is set.
 
 See the [isolate_channel documentation](https://pub.dev/packages/isolate_channel) for more information on how to use isolate connections

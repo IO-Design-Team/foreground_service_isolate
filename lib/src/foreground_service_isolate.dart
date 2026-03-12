@@ -47,11 +47,12 @@ class ForegroundServiceIsolate {
       'foregroundServiceType': foregroundServiceTypes.isEmpty
           ? ForegroundServiceType.manifest.value
           : foregroundServiceTypes.fold(0, (v, e) => v | e.value),
-      'entryPoint':
-          PluginUtilities.getCallbackHandle(foregroundServiceIsolateEntryPoint)
-              ?.toRawHandle(),
-      'userEntryPoint':
-          PluginUtilities.getCallbackHandle(entryPoint)?.toRawHandle(),
+      'entryPoint': PluginUtilities.getCallbackHandle(
+        foregroundServiceIsolateEntryPoint,
+      )?.toRawHandle(),
+      'userEntryPoint': PluginUtilities.getCallbackHandle(
+        entryPoint,
+      )?.toRawHandle(),
       'isolateId': isolateId,
     });
 

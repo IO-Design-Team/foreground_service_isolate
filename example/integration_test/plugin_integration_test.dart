@@ -17,6 +17,53 @@ const notificationDetails = NotificationDetails(
   contentText: 'Running...',
   smallIcon: 'ic_launcher',
 );
+const notificationDetailsNoTap = NotificationDetails(
+  channelId: 'foreground_service_isolate',
+  channelName: 'Foreground Service Isolate',
+  id: 2,
+  contentTitle: 'Foreground Service Isolate',
+  contentText: 'Running...',
+  smallIcon: 'ic_launcher',
+  tapAction: NotificationTapAction.none,
+);
+const notificationDetailsDeepLink = NotificationDetails(
+  channelId: 'foreground_service_isolate',
+  channelName: 'Foreground Service Isolate',
+  id: 3,
+  contentTitle: 'Foreground Service Isolate',
+  contentText: 'Running...',
+  smallIcon: 'ic_launcher',
+  tapAction: NotificationTapAction.launchDeepLink,
+  tapDeepLink: 'foreground-service-isolate://session/1',
+);
+const notificationDetailsIntentAction = NotificationDetails(
+  channelId: 'foreground_service_isolate',
+  channelName: 'Foreground Service Isolate',
+  id: 4,
+  contentTitle: 'Foreground Service Isolate',
+  contentText: 'Running...',
+  smallIcon: 'ic_launcher',
+  tapAction: NotificationTapAction.launchIntentAction,
+  tapIntentAction: 'com.iodesignteam.foreground_service_isolate_example.OPEN',
+);
+const notificationDetailsLaunchApp = NotificationDetails(
+  channelId: 'foreground_service_isolate',
+  channelName: 'Foreground Service Isolate',
+  id: 5,
+  contentTitle: 'Foreground Service Isolate',
+  contentText: 'Running...',
+  smallIcon: 'ic_launcher',
+  tapAction: NotificationTapAction.launchApp,
+);
+const notificationDetailsDismissible = NotificationDetails(
+  channelId: 'foreground_service_isolate',
+  channelName: 'Foreground Service Isolate',
+  id: 6,
+  contentTitle: 'Foreground Service Isolate',
+  contentText: 'Running...',
+  smallIcon: 'ic_launcher',
+  dismissible: true,
+);
 const methodChannelId = 'method_channel';
 
 void main() async {
@@ -85,6 +132,26 @@ void main() async {
 
     expect(onErrorCompleter.future, completes);
   });
+
+  test('tapAction none does not crash service startup', () async {
+    await spawnAndPing(notificationDetailsNoTap);
+  });
+
+  test('tapAction deepLink does not crash service startup', () async {
+    await spawnAndPing(notificationDetailsDeepLink);
+  });
+
+  test('tapAction intentAction does not crash service startup', () async {
+    await spawnAndPing(notificationDetailsIntentAction);
+  });
+
+  test('tapAction launchApp does not crash service startup', () async {
+    await spawnAndPing(notificationDetailsLaunchApp);
+  });
+
+  test('dismissible notification does not crash service startup', () async {
+    await spawnAndPing(notificationDetailsDismissible);
+  });
 }
 
 @pragma('vm:entry-point')
@@ -104,4 +171,19 @@ void entryPoint(SendPort? send) {
 void errorEntryPoint(SendPort? send) {
   setupIsolate(send);
   throw Exception();
+}
+
+Future<void> spawnAndPing(NotificationDetails details) async {
+  final connection = await spawnForegroundServiceIsolate(
+    entryPoint,
+    notificationDetails: details,
+  );
+
+  try {
+    final methodChannel = IsolateMethodChannel(methodChannelId, connection);
+    final result = await methodChannel.invokeMethod('ping');
+    expect(result, 'pong');
+  } finally {
+    connection.close();
+  }
 }
