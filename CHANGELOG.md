@@ -1,3 +1,7 @@
+## 0.1.2
+
+- Launch the app when the notification is tapped
+
 ## 0.1.1
 
 - Adds optional `channelDescription` and `importance` to `NotificationDetails`
