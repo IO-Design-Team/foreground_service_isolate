@@ -2,6 +2,7 @@ package com.iodesignteam.foreground_service_isolate
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -98,16 +99,24 @@ class IsolateForegroundService : Service() {
         val smallIcon = resources.getIdentifier(
             notificationDetails.smallIcon,
             "drawable",
-            applicationContext.packageName,
+            packageName,
         )
 
         if (smallIcon == 0) {
             throw IllegalArgumentException("Small icon not found: ${notificationDetails.smallIcon}")
         }
 
+        val launchIntent = PendingIntent.getActivity(
+            this,
+            0,
+            packageManager.getLaunchIntentForPackage(packageName),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         val notification = NotificationCompat.Builder(this, notificationDetails.channelId)
             .setContentTitle(notificationDetails.contentTitle)
-            .setContentText(notificationDetails.contentText).setSmallIcon(smallIcon).build()
+            .setContentText(notificationDetails.contentText).setSmallIcon(smallIcon)
+            .setContentIntent(launchIntent).build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(notificationDetails.id, notification, foregroundServiceType)
