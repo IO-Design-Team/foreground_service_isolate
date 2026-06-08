@@ -42,13 +42,13 @@ class NotificationDetails {
 
   /// Convert to JSON
   Map<String, dynamic> toJson() => {
-        'channelId': channelId,
-        'channelName': channelName,
-        'channelDescription': channelDescription,
-        'id': id,
-        'contentTitle': contentTitle,
-        'contentText': contentText,
-        'smallIcon': smallIcon,
-        'importance': importance.value,
-      };
+    'channelId': channelId,
+    'channelName': channelName,
+    'channelDescription': channelDescription,
+    'id': id,
+    'contentTitle': contentTitle,
+    'contentText': contentText,
+    'smallIcon': smallIcon,
+    'importance': importance.value,
+  };
 }
