@@ -28,6 +28,10 @@ class NotificationDetails {
   /// Notification importance
   final NotificationImportance importance;
 
+  /// Deep link URI opened when the notification is tapped. When null, tapping
+  /// the notification launches the app (existing behavior).
+  final String? tapDeepLink;
+
   /// Constructor
   const NotificationDetails({
     required this.channelId,
@@ -38,6 +42,7 @@ class NotificationDetails {
     required this.contentText,
     required this.smallIcon,
     this.importance = NotificationImportance.defaultImportance,
+    this.tapDeepLink,
   });
 
   /// Convert to JSON
@@ -50,5 +55,6 @@ class NotificationDetails {
     'contentText': contentText,
     'smallIcon': smallIcon,
     'importance': importance.value,
+    'tapDeepLink': tapDeepLink,
   };
 }

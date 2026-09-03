@@ -47,6 +47,8 @@ void example() async {
       contentText: 'Running...',
       // This resource must be present in android/app/src/main/res/drawable
       smallIcon: 'ic_launcher',
+      // Optional: URI opened when the notification is tapped (defaults to launching the app)
+      // tapDeepLink: 'https://example.com/session',
     ),
   );
 
