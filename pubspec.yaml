@@ -22,3 +22,5 @@ flutter:
       android:
         package: com.iodesignteam.foreground_service_isolate
         pluginClass: ForegroundServiceIsolatePlugin
+      ios:
+        pluginClass: ForegroundServiceIsolatePlugin
