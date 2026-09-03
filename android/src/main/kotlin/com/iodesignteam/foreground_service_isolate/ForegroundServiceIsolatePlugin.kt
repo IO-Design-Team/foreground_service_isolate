@@ -106,17 +106,20 @@ class IsolateForegroundService : Service() {
             throw IllegalArgumentException("Small icon not found: ${notificationDetails.smallIcon}")
         }
 
-        val launchIntent = PendingIntent.getActivity(
+        val tapIntent = notificationDetails.tapDeepLink?.let { deepLink ->
+            Intent(Intent.ACTION_VIEW, android.net.Uri.parse(deepLink))
+        } ?: packageManager.getLaunchIntentForPackage(packageName)
+        val contentPendingIntent = PendingIntent.getActivity(
             this,
-            0,
-            packageManager.getLaunchIntentForPackage(packageName),
+            notificationDetails.id,
+            tapIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val notification = NotificationCompat.Builder(this, notificationDetails.channelId)
             .setContentTitle(notificationDetails.contentTitle)
             .setContentText(notificationDetails.contentText).setSmallIcon(smallIcon)
-            .setContentIntent(launchIntent).build()
+            .setContentIntent(contentPendingIntent).build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(notificationDetails.id, notification, foregroundServiceType)
@@ -161,5 +164,6 @@ class NotificationDetails(
     val contentTitle: String,
     val contentText: String,
     val smallIcon: String,
-    val importance: Int
+    val importance: Int,
+    val tapDeepLink: String?
 )
