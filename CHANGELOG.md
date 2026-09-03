@@ -1,5 +1,6 @@
 ## 0.1.4
 
+- iOS implementation
 - Notification tap events can now be processed using [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications)
 
 ## 0.1.3
