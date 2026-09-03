@@ -11,45 +11,13 @@ import 'package:permission_handler/permission_handler.dart';
 const eventChannelId = 'foreground_service_isolate_event';
 const isolateName = 'foreground_service_isolate';
 const notificationId = 1;
-const notificationDetails = NotificationDetails(
-  channelId: 'foreground_service_isolate',
-  channelName: 'Foreground Service Isolate',
-  id: notificationId,
-  contentTitle: 'Foreground Service Isolate',
-  contentText: 'Running...',
-  smallIcon: 'ic_launcher',
-);
-
-final _tapEvents = StreamController<String>.broadcast();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Permission.notification.request();
 
-  final notifications = FlutterLocalNotificationsPlugin();
-  await notifications.initialize(
-    settings: const InitializationSettings(
-      android: AndroidInitializationSettings('ic_launcher'),
-    ),
-    onDidReceiveNotificationResponse: (details) {
-      _tapEvents.add('Tapped notification ${details.id}');
-    },
-  );
-
-  final launchDetails = await notifications.getNotificationAppLaunchDetails();
-  final launchedFromNotification =
-      launchDetails?.didNotificationLaunchApp == true &&
-      launchDetails?.notificationResponse?.id == notificationId;
-
-  runApp(
-    ExampleApp(
-      initialMessages: [
-        if (launchedFromNotification)
-          'Launched from notification $notificationId',
-      ],
-    ),
-  );
+  runApp(const ExampleApp());
 }
 
 @pragma('vm:entry-point')
@@ -86,9 +54,7 @@ void isolateEntryPoint(SendPort? send) {
 }
 
 class ExampleApp extends StatefulWidget {
-  const ExampleApp({super.key, this.initialMessages = const []});
-
-  final List<String> initialMessages;
+  const ExampleApp({super.key});
 
   @override
   State<StatefulWidget> createState() => ExampleAppState();
@@ -97,21 +63,33 @@ class ExampleApp extends StatefulWidget {
 class ExampleAppState extends State<ExampleApp> {
   IsolateConnection? connection;
   final messages = <String>[];
-  StreamSubscription<String>? tapSubscription;
 
   @override
   void initState() {
     super.initState();
-    messages.addAll(widget.initialMessages);
-    tapSubscription = _tapEvents.stream.listen(
-      (message) => setState(() => messages.insert(0, message)),
-    );
+    initStateAsync();
   }
 
-  @override
-  void dispose() {
-    tapSubscription?.cancel();
-    super.dispose();
+  void initStateAsync() async {
+    final notifications = FlutterLocalNotificationsPlugin();
+    await notifications.initialize(
+      settings: const InitializationSettings(
+        android: AndroidInitializationSettings('ic_launcher'),
+      ),
+      onDidReceiveNotificationResponse: (details) {
+        insertMessage('Tapped notification ${details.id}');
+      },
+    );
+
+    final launchDetails = await notifications.getNotificationAppLaunchDetails();
+    final launchedFromNotification =
+        launchDetails != null &&
+        launchDetails.didNotificationLaunchApp &&
+        launchDetails.notificationResponse?.id == notificationId;
+
+    if (launchedFromNotification) {
+      insertMessage('Launched from notification $notificationId');
+    }
   }
 
   @override
@@ -138,7 +116,14 @@ class ExampleAppState extends State<ExampleApp> {
   void spawn() async {
     connection = await spawnForegroundServiceIsolate(
       isolateEntryPoint,
-      notificationDetails: notificationDetails,
+      notificationDetails: const NotificationDetails(
+        channelId: 'foreground_service_isolate',
+        channelName: 'Foreground Service Isolate',
+        id: notificationId,
+        contentTitle: 'Foreground Service Isolate',
+        contentText: 'Running...',
+        smallIcon: 'ic_launcher',
+      ),
     );
     stream();
   }
@@ -168,8 +153,10 @@ class ExampleAppState extends State<ExampleApp> {
     if (connection == null) return;
 
     final eventChannel = IsolateEventChannel(eventChannelId, connection);
-    eventChannel.receiveBroadcastStream().listen(
-      (e) => setState(() => messages.insert(0, e)),
-    );
+    eventChannel.receiveBroadcastStream().cast<String>().listen(insertMessage);
+  }
+
+  void insertMessage(String message) {
+    setState(() => messages.insert(0, message));
   }
 }
