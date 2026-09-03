@@ -70,6 +70,9 @@ class ForegroundServiceIsolatePlugin : FlutterPlugin, MethodCallHandler {
 class IsolateForegroundService : Service() {
     companion object {
         var flutterEngineGroup: FlutterEngineGroup? = null
+
+        private const val SELECT_NOTIFICATION = "SELECT_NOTIFICATION"
+        private const val NOTIFICATION_ID = "notificationId"
     }
 
     var flutterEngine: FlutterEngine? = null
@@ -106,17 +109,21 @@ class IsolateForegroundService : Service() {
             throw IllegalArgumentException("Small icon not found: ${notificationDetails.smallIcon}")
         }
 
-        val launchIntent = PendingIntent.getActivity(
+        val tapIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            action = SELECT_NOTIFICATION
+            putExtra(NOTIFICATION_ID, notificationDetails.id)
+        }
+        val contentPendingIntent = PendingIntent.getActivity(
             this,
-            0,
-            packageManager.getLaunchIntentForPackage(packageName),
+            notificationDetails.id,
+            tapIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val notification = NotificationCompat.Builder(this, notificationDetails.channelId)
             .setContentTitle(notificationDetails.contentTitle)
             .setContentText(notificationDetails.contentText).setSmallIcon(smallIcon)
-            .setContentIntent(launchIntent).build()
+            .setContentIntent(contentPendingIntent).build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(notificationDetails.id, notification, foregroundServiceType)

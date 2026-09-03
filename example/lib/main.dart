@@ -3,18 +3,53 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    hide NotificationDetails;
 import 'package:foreground_service_isolate/foreground_service_isolate.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 const eventChannelId = 'foreground_service_isolate_event';
 const isolateName = 'foreground_service_isolate';
+const notificationId = 1;
+const notificationDetails = NotificationDetails(
+  channelId: 'foreground_service_isolate',
+  channelName: 'Foreground Service Isolate',
+  id: notificationId,
+  contentTitle: 'Foreground Service Isolate',
+  contentText: 'Running...',
+  smallIcon: 'ic_launcher',
+);
+
+final _tapEvents = StreamController<String>.broadcast();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Permission.notification.request();
 
-  runApp(const ExampleApp());
+  final notifications = FlutterLocalNotificationsPlugin();
+  await notifications.initialize(
+    settings: const InitializationSettings(
+      android: AndroidInitializationSettings('ic_launcher'),
+    ),
+    onDidReceiveNotificationResponse: (details) {
+      _tapEvents.add('Tapped notification ${details.id}');
+    },
+  );
+
+  final launchDetails = await notifications.getNotificationAppLaunchDetails();
+  final launchedFromNotification =
+      launchDetails?.didNotificationLaunchApp == true &&
+      launchDetails?.notificationResponse?.id == notificationId;
+
+  runApp(
+    ExampleApp(
+      initialMessages: [
+        if (launchedFromNotification)
+          'Launched from notification $notificationId',
+      ],
+    ),
+  );
 }
 
 @pragma('vm:entry-point')
@@ -51,7 +86,9 @@ void isolateEntryPoint(SendPort? send) {
 }
 
 class ExampleApp extends StatefulWidget {
-  const ExampleApp({super.key});
+  const ExampleApp({super.key, this.initialMessages = const []});
+
+  final List<String> initialMessages;
 
   @override
   State<StatefulWidget> createState() => ExampleAppState();
@@ -60,6 +97,22 @@ class ExampleApp extends StatefulWidget {
 class ExampleAppState extends State<ExampleApp> {
   IsolateConnection? connection;
   final messages = <String>[];
+  StreamSubscription<String>? tapSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    messages.addAll(widget.initialMessages);
+    tapSubscription = _tapEvents.stream.listen(
+      (message) => setState(() => messages.insert(0, message)),
+    );
+  }
+
+  @override
+  void dispose() {
+    tapSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,14 +138,7 @@ class ExampleAppState extends State<ExampleApp> {
   void spawn() async {
     connection = await spawnForegroundServiceIsolate(
       isolateEntryPoint,
-      notificationDetails: const NotificationDetails(
-        channelId: 'foreground_service_isolate',
-        channelName: 'Foreground Service Isolate',
-        id: 1,
-        contentTitle: 'Foreground Service Isolate',
-        contentText: 'Running...',
-        smallIcon: 'ic_launcher',
-      ),
+      notificationDetails: notificationDetails,
     );
     stream();
   }

@@ -1,3 +1,7 @@
+## 0.1.4
+
+- Notification tap events can now be processed using [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications)
+
 ## 0.1.3
 
 - Updates minimum supported SDK version to Flutter 3.44/Dart 3.12.
