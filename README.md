@@ -1,6 +1,6 @@
 # foreground_service_isolate
 
-Helper to spawn a long-running isolate that supports Flutter plugins in an Android foreground service. Sets up isolate channel communication with [isolate_channel](https://pub.dev/packages/isolate_channel).
+Helper to spawn a long-running isolate that supports Flutter plugins. On Android, this isolate spawns in a foreground service. Sets up isolate channel communication with [isolate_channel](https://pub.dev/packages/isolate_channel).
 
 ## Getting Started
 
