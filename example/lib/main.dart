@@ -75,6 +75,7 @@ class ExampleAppState extends State<ExampleApp> {
     await notifications.initialize(
       settings: const InitializationSettings(
         android: AndroidInitializationSettings('ic_launcher'),
+        iOS: DarwinInitializationSettings(),
       ),
       onDidReceiveNotificationResponse: (details) {
         insertMessage('Tapped notification ${details.id}');

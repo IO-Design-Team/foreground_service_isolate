@@ -19,6 +19,7 @@ void example() async {
   await notifications.initialize(
     settings: const InitializationSettings(
       android: AndroidInitializationSettings('ic_launcher'),
+      iOS: DarwinInitializationSettings(),
     ),
     onDidReceiveNotificationResponse: (details) {
       if (details.id == notificationId) {
