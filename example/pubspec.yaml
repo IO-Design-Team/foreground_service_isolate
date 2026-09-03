@@ -9,10 +9,11 @@ dependencies:
   flutter:
     sdk: flutter
 
-  flutter_local_notifications: ^20.0.0
+  flutter_local_notifications: ^22.3.0
   foreground_service_isolate:
     path: ../
-  permission_handler: ^12.0.1
+  material_ui: ^1.1.1
+  permission_handler: ^13.0.1
 
 dev_dependencies:
   integration_test:
@@ -20,7 +21,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  rexios_lints: ^17.0.3
+  rexios_lints: ^19.0.0
 
 flutter:
   uses-material-design: true
